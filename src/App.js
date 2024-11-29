@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useState } from "react";
 import JsonDisplay from "./JsonDisplay";
 import JsonSampleDataDisplay from "./JsonSampleDataDisplay";
@@ -8,8 +10,9 @@ import supplierProductSchema from "./schemas/supplierProductSchema";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BsFillLockFill } from "react-icons/bs";
-import { Simulate } from "react-dom/test-utils";
-
+import { FaRegEnvelope, FaEye, FaEyeSlash } from "react-icons/fa";
+import { MdLockOutline } from "react-icons/md";
+import ValidateLoginCredentials from "./ValidateLoginCredentials";
 
 const PRODUCTS = 0;
 const SUPPLIER_PRODUCTS = 1;
@@ -18,7 +21,6 @@ const RIGS = 2;
 const App = () => {
 	const [fileData, setFileData] = useState(null);
 	const [fileLoaded, setFileLoaded] = useState(false);
-	const [rawView, setRawView] = useState(true); // Toggle between raw and grid view
 	const [loggedIn, setLoggedIn] = useState(false); // Login state
 	const [dataValid, setDataValid] = useState(true); // Data validation state
 	const [currentImportOption, setCurrentImportOption] = useState(PRODUCTS); // Import option state
@@ -27,10 +29,17 @@ const App = () => {
 	const [importingFlag, setImportingFlag] = useState(false);
 	const [showSampleDataFlag, setShowSampleDataFlag] = useState(false);
 
+	const [userName, setUserName] = useState("");
+	const [password, setPassword] = useState("");
+	const [passwordVisible, setPasswordVisible] = useState(false);
+
 	const fileInput = document.getElementById("fileInputId");
 
 	const handleLogin = () => {
+		ValidateLoginCredentials( userName, password );
 		setLoggedIn(true); // Simulate login
+		// Check credentials here
+
 	};
 
 	const onLogOut = () => {
@@ -42,6 +51,9 @@ const App = () => {
 		setShowSampleDataFlag(false);
 	};
 
+const togglePasswordVisibility = () => {
+	setPasswordVisible(!passwordVisible);
+};
 	const LogOutButton = () => {
 		return (
 			<div>
@@ -140,7 +152,7 @@ const App = () => {
 			for (const item of fileData) {
 				setProgress(progress + 1);
 				const response = await axios.post(apiURL, item);
-				// console.log("Data sent:", response.data);
+				console.log("Data sent:", response.data);
 			}
 			setDataValid(false);
 			showSuccessMessage("All data imported successfully!");
@@ -155,7 +167,7 @@ const App = () => {
 
 	const GetRecordCount = async () => {
 		let count = 0;
-		for (const element of fileData) {
+		for (const _element of fileData) {
 			count += 1;
 		}
 		setRecordCount(count);
@@ -231,19 +243,58 @@ const simulateProgress = () => {
 			</div>
 		);
 	}
-	const SimulateProgressButton = () => {
-		return (
-			<div>
-				<button
-					type="button"
-					onClick={simulateProgress}
-					className="bg-green-500 border-2 border-black-500 text-black px-2 py-2 w-52 inline-block font-semibold hover:bg-green-700 hover:text-white"
-				>
-					Simulate Progress
-				</button>
-			</div>
-		);
-	};
+
+	// const SimulateProgressButton = () => {
+	// 	return (
+	// 		<div>
+	// 			<button
+	// 				type="button"
+	// 				onClick={simulateProgress}
+	// 				className="bg-green-500 border-2 border-black-500 text-black px-2 py-2 w-52 inline-block font-semibold hover:bg-green-700 hover:text-white"
+	// 			>
+	// 				Simulate Progress
+	// 			</button>
+	// 		</div>
+	// 	);
+	// };
+
+	// const LoginForm = () => {
+	// 	return (
+	// 		<div className="flex flex-col items-center">
+	// 			{/* <form> */}
+	// 				<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
+	// 					<FaRegEnvelope className="text-black m-2" />
+	// 					<input
+	// 						type="email"
+	// 						name="email"
+	// 						placeholder="Email"
+	// 						value={userName}
+	// 						onChange={(e) => setUserName(e.target.value)}
+	// 						className="bg-gray-200 outline-none text-sm flex-1"
+	// 					/>
+	// 				</div>
+	// 				<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
+	// 					<MdLockOutline className="text-black m-2" />
+	// 					<input
+	// 						type="password"
+	// 						name="password"
+	// 						placeholder="Password"
+	// 						value={password}
+	// 						onChange={(e) => setPassword(e.target.value)}
+	// 						className="bg-gray-200 outline-none text-sm flex-1"
+	// 					/>
+	// 				</div>
+	// 				<button
+	// 					type="button"
+	// 					onClick={handleLogin}
+	// 					className="bg-green-300 text-xl font-bold hover:drop-shadow-xl hover:bg-light-gray p-1 rounded-lg w-36 items-center justify-center border-2 border-solid border-black border-r-4 border-b-4 hover:border-l-4 hover:border-t-4 hover:bg-green-400"
+	// 				>
+	// 					Login
+	// 				</button>
+	// 			{/* </form> */}
+	// 		</div>
+	// 	);
+	// };
 
 	const validateButtonStyle =
 		"bg-green-500 border-2 border-black-500 text-black px-2 py-2 w-52 inline-block font-semibold hover:bg-green-700 hover:text-white";
@@ -258,19 +309,52 @@ const simulateProgress = () => {
 		<div className="h-screen flex items-center justify-center bg-white">
 			{!loggedIn ? (
 				<div className="text-center bg-white p-8 rounded shadow-md">
-					<div className="text-left text-3xl font-bold mb-6">
+					<div className="text-3xl font-bold mb-2">
 						<span className="text-green-500">WORK</span>SIDE
 					</div>
 					<div className="text-2xl font-bold mb-6 text-center">
 						<span className="text-black">Import Utility</span>
 					</div>
-					<button
-						type="button"
-						onClick={handleLogin}
-						className="bg-green-300 text-xl font-bold hover:drop-shadow-xl hover:bg-light-gray p-1 rounded-lg w-36 items-center justify-center border-2 border-solid border-black border-r-4 border-b-4 hover:border-l-4 hover:border-t-4 hover:bg-green-400"
-					>
-						Login
-					</button>
+					<div className="flex flex-col items-center">
+						{/* <form> */}
+						<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
+							<FaRegEnvelope className="text-black m-2" />
+							<input
+								type="email"
+								name="email"
+								placeholder="Email"
+								value={userName}
+								onChange={(e) => setUserName(e.target.value)}
+								className="bg-gray-200 outline-none text-sm flex-1"
+							/>
+						</div>
+						<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
+							<MdLockOutline className="text-black m-2" />
+							<input
+								type={passwordVisible ? "text" : "password"}
+								name="password"
+								placeholder="Password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								className="bg-gray-100 outline-none text-sm flex-1"
+							/>
+							<button
+								type="button"
+								onClick={togglePasswordVisibility}
+								className="m-2 text-black"
+							>
+								{passwordVisible ? <FaEyeSlash /> : <FaEye />}
+							</button>
+						</div>
+						<button
+							type="button"
+							onClick={handleLogin}
+							className="bg-green-300 text-xl font-bold hover:drop-shadow-xl hover:bg-light-gray p-1 rounded-lg w-36 items-center justify-center border-2 border-solid border-black border-r-4 border-b-4 hover:border-l-4 hover:border-t-4 hover:bg-green-400"
+						>
+							Login
+						</button>
+						{/* </form> */}
+					</div>
 				</div>
 			) : (
 				<div className="w-full bg-white p-8 rounded shadow-md h-full">
