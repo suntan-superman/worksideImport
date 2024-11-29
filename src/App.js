@@ -132,8 +132,8 @@ const togglePasswordVisibility = () => {
 	}
 
 	const handleStoreToDB = async () => {
-		// const dbURL = `${process.env.REACT_APP_MONGO_URI}`;
-		const dbURL = "http://localhost:4000/";
+		const dbURL = `${process.env.REACT_APP_MONGO_URI}`;
+		// const dbURL = "http://localhost:4000/";
 		let apiURL = "";
 
 		if (currentImportOption === PRODUCTS)
