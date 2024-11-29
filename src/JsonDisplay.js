@@ -2,7 +2,7 @@ import React from "react";
 
 const JsonDisplay = ({ data }) => {
 	return (
-		<div className="w-4/5 h-3/4 bg-gray-100 p-4 border rounded overflow-auto mx-auto mt-10">
+		<div className="w-4/5 h-3/4 bg-gray-100 p-4 border rounded overflow-auto mx-auto mt-2">
 			<h2 className="text-xl font-bold mb-4 text-center">Data To Import</h2>
 			<pre className="text-left text-sm bg-white p-4 rounded shadow-inner overflow-x-auto">
 				{JSON.stringify(data, null, 2)}

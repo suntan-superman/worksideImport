@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import JsonDisplay from "./JsonDisplay";
+import JsonSampleDataDisplay from "./JsonSampleDataDisplay";
 import axios from "axios";
 import productSchema from "./schemas/productSchema";
 import rigSchema from "./schemas/rigSchema";
@@ -24,6 +25,7 @@ const App = () => {
 	const [recordCount, setRecordCount] = useState(0); // Record count state
 	const [progress, setProgress] = useState(0);
 	const [importingFlag, setImportingFlag] = useState(false);
+	const [showSampleDataFlag, setShowSampleDataFlag] = useState(false);
 
 	const fileInput = document.getElementById("fileInputId");
 
@@ -33,6 +35,11 @@ const App = () => {
 
 	const onLogOut = () => {
 		setLoggedIn(false);
+		setFileData(null);
+		setFileLoaded(false);
+		setDataValid(false);
+		setCurrentImportOption(PRODUCTS);
+		setShowSampleDataFlag(false);
 	};
 
 	const LogOutButton = () => {
@@ -46,6 +53,24 @@ const App = () => {
 					className="text-xl text-white p-3 hover:drop-shadow-xl hover:bg-light-gray bg-green-500 rounded-lg"
 				>
 					<BsFillLockFill />
+				</button>
+			</div>
+		);
+	};
+
+	const onShowSampleData = () => {
+		setShowSampleDataFlag(true);
+	};
+
+	const SampleDataButton = () => {
+		return (
+			<div>
+				<button
+					type="button"
+					onClick={onShowSampleData}
+					className="text-base text-white p-3 hover:drop-shadow-xl hover:bg-light-gray bg-green-500"
+				>
+					Sample JSON Data
 				</button>
 			</div>
 		);
@@ -77,6 +102,7 @@ const App = () => {
 					const json = JSON.parse(event.target.result);
 					setFileData(json);
 					setFileLoaded(true);
+					setShowSampleDataFlag(false);
 				} catch (error) {
 					showErrorMessage(`Invalid JSON file! ${error.message}`);
 					setFileLoaded(false);
@@ -272,6 +298,12 @@ const simulateProgress = () => {
 						onChange={handleFileChange}
 						className="block w-full mb-4 p-2 border border-gray-300 rounded"
 					/>
+					{!showSampleDataFlag && !fileData && (
+						<div className="flex gap-3 justify-end w-full">
+							<SampleDataButton />
+						</div>
+					)}
+
 					{fileData && (
 						<div className="h-full">
 							<div className="flex flex-row">
@@ -358,9 +390,16 @@ const simulateProgress = () => {
 									<ProgressBar value={progress} max={recordCount} />
 								)}
 							</div>
-							<div className="h-full">
-								<JsonDisplay data={fileData} />
-							</div>
+							{!showSampleDataFlag && (
+								<div className="h-full">
+									<JsonDisplay data={fileData} />
+								</div>
+							)}
+						</div>
+					)}
+					{showSampleDataFlag && (
+						<div className="h-full">
+							<JsonSampleDataDisplay />
 						</div>
 					)}
 				</div>
