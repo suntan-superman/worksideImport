@@ -7,6 +7,7 @@ import axios from "axios";
 import productSchema from "./schemas/productSchema";
 import rigSchema from "./schemas/rigSchema";
 import supplierProductSchema from "./schemas/supplierProductSchema";
+import msaSchema from "./schemas/msaSchema";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BsFillLockFill } from "react-icons/bs";
@@ -17,6 +18,7 @@ import ValidateLoginCredentials from "./ValidateLoginCredentials";
 const PRODUCTS = 0;
 const SUPPLIER_PRODUCTS = 1;
 const RIGS = 2;
+const MSA = 3;
 
 const App = () => {
 	const [fileData, setFileData] = useState(null);
@@ -132,8 +134,8 @@ const togglePasswordVisibility = () => {
 	}
 
 	const handleStoreToDB = async () => {
-		const dbURL = `${process.env.REACT_APP_MONGO_URI}`;
-		// const dbURL = "http://localhost:4000/";
+		// const dbURL = `${process.env.REACT_APP_MONGO_URI}`;
+		const dbURL = "http://localhost:4000/";
 		let apiURL = "";
 
 		if (currentImportOption === PRODUCTS)
@@ -142,6 +144,8 @@ const togglePasswordVisibility = () => {
 			apiURL = `${dbURL}api/rig`;
 		else if (currentImportOption === SUPPLIER_PRODUCTS)
 			apiURL = `${dbURL}api/supplierproduct`;
+		else if (currentImportOption === MSA)
+			apiURL = `${dbURL}api/customersuppliermsa`;
 		else return;
 
 		// window.alert(`API URL: ${apiURL}`);
@@ -222,6 +226,20 @@ const togglePasswordVisibility = () => {
 				return false;
 			}
 		}
+		if (currentImportOption === MSA) {
+			try {
+				await msaSchema.validate(data, { abortEarly: false });
+				const jsonObject = { ...data };
+				const recordCount = Object.keys(jsonObject).length;
+
+				window.alert(`Record Count: ${recordCount}`);
+				return true;
+			} catch (err) {
+				setDataValid(false);
+				showErrorMessage(err.errors);
+				return false;
+			}
+		}
 	};
 	
 const simulateProgress = () => {
@@ -243,58 +261,6 @@ const simulateProgress = () => {
 			</div>
 		);
 	}
-
-	// const SimulateProgressButton = () => {
-	// 	return (
-	// 		<div>
-	// 			<button
-	// 				type="button"
-	// 				onClick={simulateProgress}
-	// 				className="bg-green-500 border-2 border-black-500 text-black px-2 py-2 w-52 inline-block font-semibold hover:bg-green-700 hover:text-white"
-	// 			>
-	// 				Simulate Progress
-	// 			</button>
-	// 		</div>
-	// 	);
-	// };
-
-	// const LoginForm = () => {
-	// 	return (
-	// 		<div className="flex flex-col items-center">
-	// 			{/* <form> */}
-	// 				<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
-	// 					<FaRegEnvelope className="text-black m-2" />
-	// 					<input
-	// 						type="email"
-	// 						name="email"
-	// 						placeholder="Email"
-	// 						value={userName}
-	// 						onChange={(e) => setUserName(e.target.value)}
-	// 						className="bg-gray-200 outline-none text-sm flex-1"
-	// 					/>
-	// 				</div>
-	// 				<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
-	// 					<MdLockOutline className="text-black m-2" />
-	// 					<input
-	// 						type="password"
-	// 						name="password"
-	// 						placeholder="Password"
-	// 						value={password}
-	// 						onChange={(e) => setPassword(e.target.value)}
-	// 						className="bg-gray-200 outline-none text-sm flex-1"
-	// 					/>
-	// 				</div>
-	// 				<button
-	// 					type="button"
-	// 					onClick={handleLogin}
-	// 					className="bg-green-300 text-xl font-bold hover:drop-shadow-xl hover:bg-light-gray p-1 rounded-lg w-36 items-center justify-center border-2 border-solid border-black border-r-4 border-b-4 hover:border-l-4 hover:border-t-4 hover:bg-green-400"
-	// 				>
-	// 					Login
-	// 				</button>
-	// 			{/* </form> */}
-	// 		</div>
-	// 	);
-	// };
 
 	const validateButtonStyle =
 		"bg-green-500 border-2 border-black-500 text-black px-2 py-2 w-52 inline-block font-semibold hover:bg-green-700 hover:text-white";
@@ -325,7 +291,7 @@ const simulateProgress = () => {
 								placeholder="Email"
 								value={userName}
 								onChange={(e) => setUserName(e.target.value)}
-								className="bg-gray-200 outline-none text-sm flex-1"
+								className="bg-gray-100 outline-none text-sm flex-1"
 							/>
 						</div>
 						<div className="bg-gray-200 w-72 p-2 flex items-center mb-3">
@@ -401,23 +367,6 @@ const simulateProgress = () => {
 										}
 										disabled={!fileLoaded}
 									>
-										{/* {dataValid && (
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												className="h-5 w-5 ml-2"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-												strokeWidth={2}
-											>
-												<title>Checkmark icon</title>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													d="M5 13l4 4L19 7"
-												/>
-											</svg>
-										)} */}
 										{dataValid ? (
 											<span>Data Validated</span>
 										) : (
@@ -443,9 +392,9 @@ const simulateProgress = () => {
 											name="options"
 											checked={currentImportOption === PRODUCTS}
 											className="form-radio text-blue-600"
-											onChange={() => handleImportOptionChange(0)}
+											onChange={() => handleImportOptionChange(PRODUCTS)}
 										/>
-										<span className="font-bold text-xl">Products</span>
+										<span className="font-bold text-lg">Products</span>
 									</label>
 									<label className="flex items-center space-x-2">
 										<input
@@ -453,9 +402,11 @@ const simulateProgress = () => {
 											name="options"
 											checked={currentImportOption === SUPPLIER_PRODUCTS}
 											className="form-radio text-blue-600"
-											onChange={() => handleImportOptionChange(1)}
+											onChange={() =>
+												handleImportOptionChange(SUPPLIER_PRODUCTS)
+											}
 										/>
-										<span className="font-bold text-xl">Supplier-Products</span>
+										<span className="font-bold text-lg">Supplier-Products</span>
 									</label>
 									<label className="flex items-center space-x-2">
 										<input
@@ -463,9 +414,19 @@ const simulateProgress = () => {
 											name="options"
 											checked={currentImportOption === RIGS}
 											className="form-radio text-blue-600"
-											onChange={() => handleImportOptionChange(2)}
+											onChange={() => handleImportOptionChange(RIGS)}
 										/>
-										<span className="font-bold text-xl">Rigs</span>
+										<span className="font-bold text-lg">Rigs</span>
+									</label>
+									<label className="flex items-center space-x-2">
+										<input
+											type="radio"
+											name="options"
+											checked={currentImportOption === MSA}
+											className="form-radio text-blue-600"
+											onChange={() => handleImportOptionChange(MSA)}
+										/>
+										<span className="font-bold text-lg">MSA</span>
 									</label>
 								</div>
 							</div>
